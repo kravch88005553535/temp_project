@@ -1,6 +1,6 @@
 #include "rpm.h"
 
-RPM::RPM(TIM_TypeDef* const ap_timer, const uint32_t a_timer_bus_clock, const uint8_t a_cylinders_number)
+RPM::RPM(TIM_TypeDef* const ap_timer, const uint32_t a_timer_bus_clock, const Cylinders a_cylinders_number)
   : m_tim_arr_max{65536}
   , mp_timer{ap_timer}
   , m_timer_bus_clock{a_timer_bus_clock}
@@ -71,7 +71,7 @@ RPM::RPM(TIM_TypeDef* const ap_timer, const uint32_t a_timer_bus_clock, const ui
 //CC1NP bits to 00 in the TIMx_CCER register (rising edge in this case).
   
 //  TIM3->CCMR1 |= TIM_CCMR1_IC1PSC0..1; //sensitivity
-  
+//  
   NVIC_EnableIRQ(TIM3_IRQn);
   mp_timer->CCER |= TIM_CCER_CC1E;
   mp_timer->DIER |= TIM_DIER_CC1IE;
@@ -95,8 +95,12 @@ const uint16_t RPM::GetRPM()
 
 void RPM::CalculateRPM()
 {
-  m_rpm = m_timer_bus_clock / m_cylinders_number * 2 / mp_timer->CCR1 * 60  / (mp_timer->PSC+1);
-
+  if(m_tachometer_ticks)
+  {
+    m_rpm = m_timer_bus_clock / m_cylinders_number * 2 / (mp_timer->PSC+1)* 60 / (m_tachometer_ticks/mp_timer->PSC+1);
+    m_rpm < m_min_rpm ? m_rpm=0 : m_rpm;
+  }
+  else m_rpm = 0;
 }
 
 void RPM::SetMinRPM(const uint16_t a_min_rpm)
@@ -111,8 +115,8 @@ const uint16_t RPM::GetMinRPM()
 }
 
 
-void RPM::SetNumberOfCylinders(const uint8_t a_cylinders_number)
+void RPM::SetNumberOfCylinders(const Cylinders a_cylinders_number)
 {
   m_cylinders_number = a_cylinders_number;
-  //setminrpm
+  SetMinRPM(m_min_rpm);
 }

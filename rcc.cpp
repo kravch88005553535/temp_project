@@ -12,14 +12,37 @@ Rcc::Rcc(Clock_source a_clock_source, uint16_t a_hse_frequency = 0)
 Rcc::~Rcc()
 {
 }
-void Rcc::GetAhbClock()
+uint32_t Rcc::GetAhbClock()
 {
+	return 100'000'000;
 }
-void Rcc::GetApb1Clock()
+uint32_t Rcc::GetApb1Clock()
 {
+	return 50'000'000;
 } 
-void Rcc::GetApb2Clock()
+uint32_t Rcc::GetApb2Clock()
 {
+	return 100'000'000;
+}
+
+uint32_t Rcc::GetPeripheralClock(void* a_peripheral)
+{
+	uint32_t clock{0};
+	switch(reinterpret_cast<uint32_t>(a_peripheral))
+	{
+		case USART1_BASE:
+			clock = this->GetApb2Clock();
+		break;
+			
+		case USART2_BASE:
+			clock = this->GetApb1Clock();
+		break;
+		
+		case USART6_BASE:
+			clock = this->GetApb2Clock();
+		break;
+	}
+	return clock;
 }
 
 uint32_t Rcc::GetTimerClock(TIM_TypeDef* ap_timer)

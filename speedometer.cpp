@@ -77,7 +77,7 @@ Speedometer::Speedometer
   
 //  TIM3->CCMR1 |= TIM_CCMR1_IC1PSC0..1; //sensitivity
   
-  NVIC_EnableIRQ(TIM3_IRQn);
+  NVIC_EnableIRQ(TIM4_IRQn);
   mp_timer->CCER |= TIM_CCER_CC1E;
   mp_timer->DIER |= TIM_DIER_CC1IE;
   mp_timer->DIER |= TIM_DIER_UIE;
@@ -91,8 +91,8 @@ Speedometer::~Speedometer()
 }
 void Speedometer::CalcualteSpeed()
 {
-//  pulses per unit has to be  pulses per meter *1000
-  m_speed = m_timer_bus_clock / m_pulses_per_unit * 3600 / mp_timer->CCR1 / (mp_timer->PSC+1);
+  if(m_speedometer_ticks) m_speed = m_timer_bus_clock / m_pulses_per_unit * 3600 / m_speedometer_ticks;
+  else m_speed = 0;
 }
 void Speedometer::SetUnits (Speedometer::Units a_units)
 {
