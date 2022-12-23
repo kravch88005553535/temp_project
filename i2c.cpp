@@ -17,7 +17,11 @@ I2c::I2c(I2C_TypeDef* ap_i2c, uint32_t a_i2c_clock, Speed a_speed)
 			RCC->APB1ENR |=  RCC_APB1ENR_I2C3EN;
 		break;
 	}
-	//mp_i2c->CR1 |= I2C_CR1_SWRST;
+  
+  
+  mp_i2c->CR1 |= I2C_CR1_SWRST;
+  mp_i2c->CR1 &= ~I2C_CR1_SWRST;
+	
 	mp_i2c->CR2 &= ~I2C_CR2_FREQ;
 	mp_i2c->CR2 |= a_i2c_clock / 1'000'000 << I2C_CR2_FREQ_Pos;	
 	SetSpeed(a_speed);
@@ -31,14 +35,59 @@ I2c::~I2c()
 void I2c::Transmit(uint16_t a_address, uint8_t* ap_data, uint32_t a_size)
 {
 	mp_i2c->CR1 |= I2C_CR1_START;
-	while ((mp_i2c->SR2 & I2C_SR2_MSL) != I2C_SR2_MSL) ;
 	while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB) ;
-	mp_i2c->DR = a_address;
+	mp_i2c->SR1;
+  mp_i2c->DR = 0xA0;
+	while ((mp_i2c->SR1 & I2C_SR1_ADDR) != I2C_SR1_ADDR) __ASM("nop");
+  mp_i2c->SR1;
+  mp_i2c->SR2;
+  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE);
+	mp_i2c->DR = static_cast<uint8_t>(a_address >> 8);
+	while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE);
+	mp_i2c->DR = static_cast<uint8_t>(a_address&0x00FF);
+  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
+  mp_i2c->DR = *ap_data;
+//  while (a_size--)
+//	{
+//		while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
+//		mp_i2c->DR = *ap_data;
+//		ap_data++;
+//	}
+  while ((mp_i2c->SR1 & I2C_SR1_BTF) != I2C_SR1_BTF) ;
+	mp_i2c->CR1 |= I2C_CR1_STOP;
 }
 
 void I2c::Recieve(uint16_t a_address, uint8_t* ap_data)
 {
-	mp_i2c->DR = a_address | 0x01;
+  mp_i2c->CR1 |= I2C_CR1_START;
+	while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB) ;
+	mp_i2c->SR1;
+  mp_i2c->DR = 0xA0;
+	while ((mp_i2c->SR1 & I2C_SR1_ADDR) != I2C_SR1_ADDR) __ASM("nop");
+  mp_i2c->SR1;
+  mp_i2c->SR2;
+  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
+	mp_i2c->DR = static_cast<uint8_t>(a_address >> 8);
+	while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
+	mp_i2c->DR = static_cast<uint8_t>(a_address&0x00FF);
+  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
+  
+  mp_i2c->CR1 |= I2C_CR1_START;
+  while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB) ;
+	mp_i2c->SR1;
+  mp_i2c->DR = 0xA1;
+
+  
+  mp_i2c->CR1 &= ~I2C_CR1_ACK;
+	mp_i2c->SR1 &= ~I2C_SR1_ADDR;
+  (void)mp_i2c->SR1;
+  (void)mp_i2c->SR2;
+
+	while ((mp_i2c->SR1 & I2C_SR1_RXNE) != I2C_SR1_RXNE);
+	*ap_data = mp_i2c->DR;
+  mp_i2c->CR1 |= I2C_CR1_STOP;
+	
+	
 }
 
 void I2c::SetSpeed(Speed a_speed)

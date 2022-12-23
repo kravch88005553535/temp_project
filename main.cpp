@@ -15,21 +15,20 @@ constexpr uint32_t f_cpu = 100'000'000;
 
 int main (void)
  {
-   Rcc rcc(Rcc::Pll_clock, 25000);
-	
+   Rcc rcc(Rcc::Pll_clock, 25000);	
 	 Pin c13(GPIOC, 13, Pin::mode_out_pulldown);
-	 
-	 
-	//I2C B8 clock
-	//I2C B9 data
-	 Pin B8(GPIOB, 8, Pin::mode_alternate_function_open_drain);
-	 Pin B9(GPIOB, 9, Pin::mode_alternate_function_open_drain);
+
+	 Pin B8(GPIOB, 8, Pin::mode_alternate_function_open_drain); //I2C B8 clock
+	 Pin B9(GPIOB, 9, Pin::mode_alternate_function_open_drain); //I2C B9 data
 	 B8.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
 	 B9.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
 	 
-	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_100kHz);
-	 uint8_t data = 0xFF;
-	 i2c.Transmit(0xA0, &data, 0);
+	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz);
+	 uint8_t data = 'F';
+	 i2c.Transmit(0x00F1, &data, 1);
+	 
+	 uint8_t recieve_data = 0x00;
+	 i2c.Recieve(0x00F1,&recieve_data);
 	 
 	 
    Usart usart(USART1, Usart::Interface_UART, Usart::WordLength_8bits, Usart::StopBits_1, Usart::Oversampling_8, 
