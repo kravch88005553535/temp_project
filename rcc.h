@@ -22,9 +22,10 @@ public:
   ~Rcc();
   void SetPLLSource(Pll_clock_source);
   void SetAHBClock();
-  void GetAhbClock();
-  void GetApb1Clock();  
-  void GetApb2Clock();
+  uint32_t GetAhbClock();
+  uint32_t GetApb1Clock();  
+  uint32_t GetApb2Clock();
+	uint32_t GetPeripheralClock(void* a_peripheral);
   uint32_t GetTimerClock(TIM_TypeDef* ap_timer);
   void SetMcuToLowPowerMode();
   void SetMcuToRunMode();

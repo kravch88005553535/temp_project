@@ -46,7 +46,7 @@ class Speedometer
     void SetUnits(Speedometer::Units a_units);
     void SetPulsesPerUnit(uint16_t a_pulses_per_unit);
     const uint16_t GetSpeed();
-  
+    volatile static inline uint32_t m_speedometer_ticks = 0;
   private:
     const uint32_t m_tim_arr_max;  //IS IT NEEDED?
     const uint32_t m_timer_bus_clock;

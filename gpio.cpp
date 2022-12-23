@@ -102,10 +102,8 @@ Pin::Pin(GPIO_TypeDef* ap_port, uint8_t a_pin_number, Mode a_mode)
       mp_port->MODER &= ~(GPIO_MODER_MODER0_Msk << (a_pin_number*2)); // clear
       mp_port->MODER |= GPIO_MODER_MODER0 << (a_pin_number*2); // 11 analog
     break;
-
-    
-    break;
   }
+		mp_port->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR0 << (a_pin_number*2);
 }
 Pin::~Pin()
 {
@@ -134,7 +132,7 @@ Pin::Mode Pin::GetMode()
 return m_mode;
 }
 
-void Pin::SetAlternateFunctionNumber(uint8_t a_af_number)
+void Pin::SetAlternateFunctionNumber(AlternateFunction a_af_number)
 {
   if (m_pin_number <=7)
   {

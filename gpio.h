@@ -27,6 +27,26 @@ enum Mode : int
   mode_analog
 };
 
+enum AlternateFunction :int
+{
+	AlternateFunction_0 = 0,
+	AlternateFunction_1,
+	AlternateFunction_2,
+	AlternateFunction_3,
+	AlternateFunction_4,
+	AlternateFunction_5,
+	AlternateFunction_6,
+	AlternateFunction_7,
+	AlternateFunction_8,
+	AlternateFunction_9,
+	AlternateFunction_10,
+	AlternateFunction_11,
+	AlternateFunction_12,
+	AlternateFunction_13,
+	AlternateFunction_14,
+	AlternateFunction_15
+};
+
 Pin() = delete;
 Pin(GPIO_TypeDef* ap_port, uint8_t a_pin_number, Mode a_mode);
 ~Pin();
@@ -36,7 +56,7 @@ bool Getstate();
 void TogglePin(void);
 void SetMode(const Mode a_mode);
 Mode GetMode();
-void SetAlternateFunctionNumber(uint8_t a_af_number);
+void SetAlternateFunctionNumber(AlternateFunction a_af_number);
 void Lock();
 
 private:
