@@ -1,7 +1,8 @@
 #include "i2c.h"
 
-I2c::I2c(I2C_TypeDef* ap_i2c, uint32_t a_i2c_clock, Speed a_speed)
-	:mp_i2c{ap_i2c}
+I2c::I2c(I2C_TypeDef* ap_i2c, uint32_t a_i2c_clock, Speed a_speed, Address a_address)
+	: mp_i2c{ap_i2c}
+	, m_address{a_address}
 {
 	switch(reinterpret_cast<uint32_t>(mp_i2c))
 	{
@@ -32,66 +33,77 @@ I2c::~I2c()
 {
 }
 
-void I2c::Transmit(uint16_t a_address, uint8_t* ap_data, uint32_t a_size)
+void I2c::Lock()
+{
+  m_islocked = true;
+}
+
+void I2c::Unlock()
+{
+  m_islocked = false;
+}
+bool I2c::IsLocked()
+{
+  return m_islocked;
+} 
+
+void I2c::GenerateStartCondition()
 {
 	mp_i2c->CR1 |= I2C_CR1_START;
-	while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB) ;
+	while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB);
 	mp_i2c->SR1;
-  mp_i2c->DR = 0xA0;
-	while ((mp_i2c->SR1 & I2C_SR1_ADDR) != I2C_SR1_ADDR) __ASM("nop");
-  mp_i2c->SR1;
-  mp_i2c->SR2;
-  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE);
-	mp_i2c->DR = static_cast<uint8_t>(a_address >> 8);
-	while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE);
-	mp_i2c->DR = static_cast<uint8_t>(a_address&0x00FF);
-  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
-  mp_i2c->DR = *ap_data;
-//  while (a_size--)
-//	{
-//		while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
-//		mp_i2c->DR = *ap_data;
-//		ap_data++;
-//	}
-  while ((mp_i2c->SR1 & I2C_SR1_BTF) != I2C_SR1_BTF) ;
+}
+
+void I2c::GenerateStopCondition()
+{
 	mp_i2c->CR1 |= I2C_CR1_STOP;
 }
 
-void I2c::Recieve(uint16_t a_address, uint8_t* ap_data)
+void I2c::TransmitDeviceAddress(uint16_t a_address)
 {
-  mp_i2c->CR1 |= I2C_CR1_START;
-	while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB) ;
-	mp_i2c->SR1;
-  mp_i2c->DR = 0xA0;
-	while ((mp_i2c->SR1 & I2C_SR1_ADDR) != I2C_SR1_ADDR) __ASM("nop");
-  mp_i2c->SR1;
-  mp_i2c->SR2;
-  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
-	mp_i2c->DR = static_cast<uint8_t>(a_address >> 8);
-	while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
-	mp_i2c->DR = static_cast<uint8_t>(a_address&0x00FF);
-  while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
-  
-  mp_i2c->CR1 |= I2C_CR1_START;
-  while ((mp_i2c->SR1 & I2C_SR1_SB) != I2C_SR1_SB) ;
-	mp_i2c->SR1;
-  mp_i2c->DR = 0xA1;
-
-  
-  mp_i2c->CR1 &= ~I2C_CR1_ACK;
-	mp_i2c->SR1 &= ~I2C_SR1_ADDR;
-  (void)mp_i2c->SR1;
-  (void)mp_i2c->SR2;
-
-	while ((mp_i2c->SR1 & I2C_SR1_RXNE) != I2C_SR1_RXNE);
-	*ap_data = mp_i2c->DR;
-  mp_i2c->CR1 |= I2C_CR1_STOP;
-	
-	
+	switch (static_cast <uint32_t> (m_address))
+	{
+		case Address_7bit:
+		mp_i2c->DR = (a_address & 0xFF);
+		while ((mp_i2c->SR1 & I2C_SR1_ADDR) != I2C_SR1_ADDR) __ASM("nop");
+		mp_i2c->SR1;
+		mp_i2c->SR2;
+		break;
+		
+		case Address_10bit:
+		break;
+	}
 }
+
+void I2c::TransmitData(uint8_t a_transmitdata)
+{
+	mp_i2c->DR = a_transmitdata;
+	while ((mp_i2c->SR1 & I2C_SR1_TXE) != I2C_SR1_TXE) ;
+}
+
+void I2c::RecieveData(uint8_t *ap_recievedata)
+{
+	mp_i2c->CR1 |= I2C_CR1_ACK;
+	while ((mp_i2c->SR1 & I2C_SR1_RXNE) != I2C_SR1_RXNE) __ASM("nop");
+	*ap_recievedata = mp_i2c->DR;
+}
+
+void I2c::RecieveDataNoAck(uint8_t *ap_recievedata)
+{
+	mp_i2c->CR1 &= ~I2C_CR1_ACK;
+	while ((mp_i2c->SR1 & I2C_SR1_RXNE) != I2C_SR1_RXNE) __ASM("nop");
+	*ap_recievedata = mp_i2c->DR;
+}
+
+void I2c::CheckByteTransmissionFlag()
+{
+  while ((mp_i2c->SR1 & I2C_SR1_BTF) != I2C_SR1_BTF) __ASM("nop");
+}
+
 
 void I2c::SetSpeed(Speed a_speed)
 {
+  //check if locked
 	mp_i2c->CR1 &= ~I2C_CR1_PE;
 	uint32_t apb_frequency = mp_i2c->CR2 & I2C_CR2_FREQ_Msk;
 	const uint32_t Trise_plus_Tw_100kHz = 5000;
@@ -114,4 +126,9 @@ void I2c::SetSpeed(Speed a_speed)
 		break;
 	}
 	mp_i2c->CR1 |= I2C_CR1_PE;
+}
+
+I2C_TypeDef* I2c::GetPtrI2C()
+{
+  return mp_i2c;
 }

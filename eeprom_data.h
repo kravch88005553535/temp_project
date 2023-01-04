@@ -10,12 +10,7 @@ public:
   Eeprom_data(){};
   ~Eeprom_data(){};
   void CalculateCRC();
-private:
-  uint8_t writing_number;
-  uint8_t data_size;
-  uint32_t crc;
-//  iswriteneeded
-   
+private:   
   uint8_t led_num;
   LedStrip::Animation animation;
   Color shift_color_1;
@@ -40,6 +35,9 @@ private:
   uint32_t odometer_value;
   uint32_t actual_oil_change_interval;
   uint32_t defined_oil_change_interval;
+
+  bool iswriteneeded;
+  uint32_t crc;
 };
 
 #endif //__EEPROM_DATA_H__

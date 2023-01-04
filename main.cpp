@@ -4,11 +4,12 @@
 #include "gpio.h"
 #include "rpm.h"
 #include "speedometer.h"
+#include "eeprom.h"
 #include "eeprom_data.h"
 #include "rcc.h"
 #include "led_strip.h"
 #include "usart.h"
-#include "i2c.h"
+//#include "i2c.h"
 
 volatile double frequency{400};
 constexpr uint32_t f_cpu = 100'000'000;
@@ -23,12 +24,19 @@ int main (void)
 	 B8.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
 	 B9.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
 	 
-	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz);
-	 uint8_t data = 'F';
-	 i2c.Transmit(0x00F1, &data, 1);
+	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz, I2c::Address_7bit);
+	 I2C_eeprom eeprom(0xA0, &i2c);
 	 
-	 uint8_t recieve_data = 0x00;
-	 i2c.Recieve(0x00F1,&recieve_data);
+	 uint8_t data1 = '8';
+	 uint8_t data2 = 'X';
+
+	 eeprom.Write(0x00F2,&data1,1);
+	 eeprom.Write(0x00F3,&data2,1);
+	 
+	 uint8_t recieve_data[5] = {};
+	 eeprom.Read(0x00EF, &recieve_data[0], 5);
+		 
+		__ASM("nop");
 	 
 	 
    Usart usart(USART1, Usart::Interface_UART, Usart::WordLength_8bits, Usart::StopBits_1, Usart::Oversampling_8, 
