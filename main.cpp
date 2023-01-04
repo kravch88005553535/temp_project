@@ -11,6 +11,7 @@
 #include "usart.h"
 //#include "i2c.h"
 
+uint8_t transmit_data [55] = {};
 volatile double frequency{400};
 constexpr uint32_t f_cpu = 100'000'000;
 
@@ -27,14 +28,14 @@ int main (void)
 	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz, I2c::Address_7bit);
 	 I2C_eeprom eeprom(0xA0, &i2c);
 	 
-	 uint8_t data1 = '8';
-	 uint8_t data2 = 'X';
+	 uint8_t tr_data[40] = {'2','g','x','n','d','a','b','n'};
 
-	 eeprom.Write(0x00F2,&data1,1);
-	 eeprom.Write(0x00F3,&data2,1);
+	
+	 eeprom.Write(0x0005,&transmit_data[0],55);
+	 eeprom.Write(0x0005,&tr_data[0],40);
 	 
-	 uint8_t recieve_data[5] = {};
-	 eeprom.Read(0x00EF, &recieve_data[0], 5);
+	 uint8_t recieve_data[60] = {};
+	 eeprom.Read(0x0005, &recieve_data[0], 60);
 		 
 		__ASM("nop");
 	 
@@ -75,12 +76,12 @@ while(1)
   {
 			usart_data[6] = revpermin /1000 +48;
 			usart_data[7] = revpermin / 100 % 10 +48;
-			usart_data[8] = revpermin % 100 /10 +48;
+			usart_data[8] = revpermin % 100 / 10 +48;
 			usart_data[9] = revpermin %10 +48;
 
 			usart_data[19] =  speed / 100 +48;
 			usart_data[20] = speed / 10 % 10 +48;
-			usart_data[21] = speed %10 +48;
+			usart_data[21] = speed % 10 +48;
 		
 		
 			
