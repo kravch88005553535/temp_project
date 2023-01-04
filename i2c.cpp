@@ -103,7 +103,6 @@ void I2c::CheckByteTransmissionFlag()
 
 void I2c::SetSpeed(Speed a_speed)
 {
-  //check if locked
 	mp_i2c->CR1 &= ~I2C_CR1_PE;
 	uint32_t apb_frequency = mp_i2c->CR2 & I2C_CR2_FREQ_Msk;
 	const uint32_t Trise_plus_Tw_100kHz = 5000;

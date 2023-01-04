@@ -4,6 +4,21 @@
 #include "speedometer.h"
 #include "led_strip.h"
 
+enum Eeprom_offsets
+{
+	led_num_offset = 0,
+	animation_offset = led_num_offset + sizeof(uint8_t),
+	shift_color_1_offset = animation_offset + sizeof (int),//(LedStrip::Animation),
+	shift_color_2_offset = shift_color_1_offset + 3 * sizeof(uint8_t),
+	shift_color_3_offset = shift_color_2_offset + 3 * sizeof(uint8_t),
+	number_of_led_1_offset = shift_color_3_offset + 3 * sizeof(uint8_t),
+	number_of_led_2_offset = number_of_led_1_offset + sizeof (uint8_t),
+	number_of_led_3_offset = number_of_led_2_offset + sizeof (uint8_t),
+	blink_color_1_offset = number_of_led_3_offset + sizeof (uint8_t),
+	sd	
+	
+};
+
 class Eeprom_data
 {
 public:

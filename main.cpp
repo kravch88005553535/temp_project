@@ -9,6 +9,7 @@
 #include "rcc.h"
 #include "led_strip.h"
 #include "usart.h"
+#include "gearbox.h"
 //#include "i2c.h"
 
 uint8_t transmit_data [55] = {};
@@ -27,6 +28,17 @@ int main (void)
 	 
 	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz, I2c::Address_7bit);
 	 I2C_eeprom eeprom(0xA0, &i2c);
+	 
+	 Gearbox gearbox;
+	 
+	 gearbox.SetGearRatio(Gearbox::Gear_main, 4.13);
+	 gearbox.SetGearRatio(Gearbox::Gear_first, 2.92);
+	 gearbox.SetGearRatio(Gearbox::Gear_second, 2.05);
+	 gearbox.SetGearRatio(Gearbox::Gear_third, 1.56);
+	 gearbox.SetGearRatio(Gearbox::Gear_fourth, 1.31);
+	 gearbox.SetGearRatio(Gearbox::Gear_fifth, 1.13);
+	 gearbox.SetGearRatio(Gearbox::Gear_sixth, 0.94);
+	 
 	 
 	 uint8_t tr_data[40] = {'2','g','x','n','d','a','b','n'};
 
@@ -91,6 +103,8 @@ while(1)
       
       speed = speedometer.GetSpeed();
       revpermin = rpm.GetRPM();
+		
+			gearbox.CalculateGear(rpm.GetRPM(), speedometer.GetSpeed());
    
     frequency = static_cast<double>(double(f_cpu) / (TIM1->ARR+1) / (TIM1->PSC+1) /2);
   }  
