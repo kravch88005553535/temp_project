@@ -31,16 +31,20 @@ int main (void)
 	 
 	 Gearbox gearbox;
 	 
-	 gearbox.SetGearRatio(Gearbox::Gear_main, 4.13);
 	 gearbox.SetGearRatio(Gearbox::Gear_first, 2.92);
+	 gearbox.SetGearRatio(Gearbox::Gear_main, 4.13); //eeprom download
 	 gearbox.SetGearRatio(Gearbox::Gear_second, 2.05);
 	 gearbox.SetGearRatio(Gearbox::Gear_third, 1.56);
 	 gearbox.SetGearRatio(Gearbox::Gear_fourth, 1.31);
 	 gearbox.SetGearRatio(Gearbox::Gear_fifth, 1.13);
 	 gearbox.SetGearRatio(Gearbox::Gear_sixth, 0.94);
 	 
-	 
-	 uint8_t tr_data[40] = {'2','g','x','n','d','a','b','n'};
+	 gearbox.SetTireWidth(185);
+	 gearbox.SetTireHeight(60);
+	 gearbox.SetRimDiameter(14);
+	 gearbox.CalculateCircumference();
+	 gearbox.CalculateGear(6800, 115);
+	 uint8_t tr_data[40] = {'2','g','x','k','d','a','b','n'};
 
 	
 	 eeprom.Write(0x0005,&transmit_data[0],55);
