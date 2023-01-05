@@ -28,19 +28,21 @@ public:
 	
 	void CalculateGear(uint32_t a_rpm, uint32_t a_speed);
 
-	uint8_t GetGear();
+	uint8_t GetActiveGear();
 	
 private:
-	uint8_t m_gear;
-	double m_main_gear_ratio;
-	double m_first_gear_ratio;
-	double m_second_gear_ratio;
-	double m_third_gear_ratio;
-	double m_fourth_gear_ratio;
-	double m_fifth_gear_ratio;
-	double m_sixth_gear_ratio;
-	double m_seventh_gear_ratio;
+	Gear m_active_gear;
 	
+	double m_main_gear_ratio;
+	double m_gears[7];
+//	double m_first_gear_ratio;
+//	double m_second_gear_ratio;
+//	double m_third_gear_ratio;
+//	double m_fourth_gear_ratio;
+//	double m_fifth_gear_ratio;
+//	double m_sixth_gear_ratio;
+//	double m_seventh_gear_ratio;
+//	
 	double m_circumference;
 	uint8_t m_rim_diameter;
 	uint8_t m_tire_height;
