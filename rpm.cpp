@@ -5,7 +5,7 @@ RPM::RPM(TIM_TypeDef* const ap_timer, const uint32_t a_timer_bus_clock, const Cy
   , mp_timer{ap_timer}
   , m_timer_bus_clock{a_timer_bus_clock}
   , m_cylinders_number{a_cylinders_number}
-  , m_sensitivity{0}
+  , m_sensitivity_level{0}
 {
   switch (reinterpret_cast<uint32_t>(mp_timer))
   {

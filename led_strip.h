@@ -37,8 +37,9 @@ public:
   void SetBrightness(uint8_t a_brightness);
   uint8_t GetBrightness();
 private:
-  Color* color;
-  uint8_t brightness;
+  Color* m_color;
+  uint8_t m_brightness;
+	uint8_t m_dimmer_brightness;
 };
 
 class LedStrip : public Led
@@ -64,8 +65,9 @@ public:
   void Show();
 private:
   bool isdimmerenabled;
-  Animation animation;
-  //array of leds <vector>
+  Animation m_animation;
+  uint8_t m_leds_num;
+	uint8_t m_segments_num;
 };
 
 #endif // __LED_STRIP_H__

@@ -12,58 +12,113 @@
 #include "gearbox.h"
 //#include "i2c.h"
 
-uint8_t transmit_data [55] = {};
 volatile double frequency{400};
 constexpr uint32_t f_cpu = 100'000'000;
 
-int main (void)
- {
-   Rcc rcc(Rcc::Pll_clock, 25000);	
-	 Pin c13(GPIOC, 13, Pin::mode_out_pulldown);
 
-	 Pin B8(GPIOB, 8, Pin::mode_alternate_function_open_drain); //I2C B8 clock
-	 Pin B9(GPIOB, 9, Pin::mode_alternate_function_open_drain); //I2C B9 data
-	 B8.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
-	 B9.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
-	 
-	 I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz, I2c::Address_7bit);
-	 I2C_eeprom eeprom(0xA0, &i2c);
-	 
-	 Gearbox gearbox;
-	 
-	 gearbox.SetGearRatio(Gearbox::Gear_main, 4.13); //eeprom download
-	 gearbox.SetGearRatio(Gearbox::Gear_first, 2.92);
-	 gearbox.SetGearRatio(Gearbox::Gear_second, 2.05);
-	 gearbox.SetGearRatio(Gearbox::Gear_third, 1.56);
-	 gearbox.SetGearRatio(Gearbox::Gear_fourth, 1.31);
-	 gearbox.SetGearRatio(Gearbox::Gear_fifth, 1.13);
-	 gearbox.SetGearRatio(Gearbox::Gear_sixth, 0.94);
-	 
-	 gearbox.SetTireWidth(185);
-	 gearbox.SetTireHeight(60);
-	 gearbox.SetRimDiameter(14);
-	 gearbox.CalculateCircumference();
-	 gearbox.CalculateGear(800, 11);
-	 uint8_t tr_data[40] = {'2','g','x','k','d','a','b','n'};
+int main (void)
+{
+	Rcc rcc(Rcc::Pll_clock, 25000);	
+	Pin c13(GPIOC, 13, Pin::mode_out_pulldown);
+
+	Pin B8(GPIOB, 8, Pin::mode_alternate_function_open_drain); //I2C B8 clock
+	Pin B9(GPIOB, 9, Pin::mode_alternate_function_open_drain); //I2C B9 data
+	B8.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
+	B9.SetAlternateFunctionNumber(Pin::AlternateFunction_4);	 
+	I2c i2c(I2C1,rcc.GetApb1Clock(), I2c::Speed_400kHz, I2c::Address_7bit);
+
+	I2C_eeprom eeprom(0xA0, &i2c);
+	double tr_data{998.1675};
+//	eeprom.Write(0x0005,reinterpret_cast<uint8_t*>(&tr_data),sizeof(double));
+	double r_data{55.1};
+	eeprom.Read(0x0005, reinterpret_cast<uint8_t*>(&r_data),sizeof(double));
+	uint8_t u8temp[sizeof(double)];	
+	eeprom.Read(0x0005, &u8temp[0],sizeof(double));
+	
+	uint8_t ptr;
+	LedStrip::Animation ptr_animation {LedStrip::Animation::fromlefttoright};
+	
+//	eeprom.Write(eeprom_leds_num, &ptr, sizeof (uint8_t));
+//	eeprom.Write(eeprom_brightness, &ptr, sizeof (uint8_t));
+//	eeprom.Write(eeprom_dimmer_brightness, &ptr, sizeof (uint8_t));
+//	
+//	eeprom.Write(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
+//	
+//	eeprom.Write(eeprom_segments_number, &ptr, sizeof (uint8_t));
+	Color ptr_color;
+//	eeprom.Write(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+//	eeprom.Write(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+//	eeprom.Write(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+//	eeprom.Write(eeprom_seg_2_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+//	eeprom.Write(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+//	eeprom.Write(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+//	
+//	eeprom.Write(eeprom_seg_1_led_number, &ptr, sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_2_led_number, &ptr, sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_3_led_number, &ptr, sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_4_led_number, &ptr, sizeof (uint8_t));
+//	
+	auto cylinders_number = RPM::Cylinders_4;
+//	eeprom.Write(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
+//	eeprom.Write(eeprom_tachometer_sensitivity_level, &ptr, sizeof (uint8_t));
+//	
+	
+	////////////////
+	eeprom.Read(eeprom_leds_num, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_brightness, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_dimmer_brightness, &ptr, sizeof (uint8_t));
+	
+	eeprom.Read(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
+	
+	eeprom.Read(eeprom_segments_number, &ptr, sizeof (uint8_t));
+
+	eeprom.Read(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	eeprom.Read(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	eeprom.Read(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	eeprom.Read(eeprom_seg_2_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	eeprom.Read(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	eeprom.Read(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	
+	eeprom.Read(eeprom_seg_1_led_number, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_2_led_number, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_3_led_number, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_4_led_number, &ptr, sizeof (uint8_t));
+	
+
+	eeprom.Read(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
+	eeprom.Read(eeprom_tachometer_sensitivity_level, &ptr, sizeof (uint8_t));
+	
+	
+	
 
 	
-	 eeprom.Write(0x0005,&transmit_data[0],55);
-	 eeprom.Write(0x0005,&tr_data[0],40);
+	__ASM("nop");
 	 
-	 uint8_t recieve_data[60] = {};
-	 eeprom.Read(0x0005, &recieve_data[0], 60);
-		 
-		__ASM("nop");
-	 
-	 
-   Usart usart(USART1, Usart::Interface_UART, Usart::WordLength_8bits, Usart::StopBits_1, Usart::Oversampling_8, 
-     Usart::ParityControl_disabled, Usart::Baudrate_9600KBaud, rcc.GetPeripheralClock(USART1));
-   Pin a9(GPIOA, 9, Pin::mode_alternate_function_pulldown);
-   Pin a10(GPIOA, 10, Pin::mode_alternate_function_pulldown);
-  a9.SetAlternateFunctionNumber(Pin::AlternateFunction_7);
+	int a = Eeprom_offsets::eeprom_crc;
 
-   
-   
+	Gearbox gearbox;
+
+	gearbox.SetGearRatio(Gearbox::Gear_main, 4.13); //eeprom download
+	gearbox.SetGearRatio(Gearbox::Gear_first, 2.92);
+	gearbox.SetGearRatio(Gearbox::Gear_second, 2.05);
+	gearbox.SetGearRatio(Gearbox::Gear_third, 1.56);
+	gearbox.SetGearRatio(Gearbox::Gear_fourth, 1.31);
+	gearbox.SetGearRatio(Gearbox::Gear_fifth, 1.13);
+	gearbox.SetGearRatio(Gearbox::Gear_sixth, 0.94);
+
+	gearbox.SetTireWidth(185);
+	gearbox.SetTireHeight(60);
+	gearbox.SetRimDiameter(14);
+	gearbox.CalculateCircumference();
+	gearbox.CalculateGear(800, 11);
+
+
+	Usart usart(USART1, Usart::Interface_UART, Usart::WordLength_8bits, Usart::StopBits_1, Usart::Oversampling_8, 
+	 Usart::ParityControl_disabled, Usart::Baudrate_9600KBaud, rcc.GetPeripheralClock(USART1));
+	Pin A9(GPIOA, 9, Pin::mode_alternate_function_pulldown);
+	Pin A10(GPIOA, 10, Pin::mode_alternate_function_pulldown);
+	A9.SetAlternateFunctionNumber(Pin::AlternateFunction_7);
+
   DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
   DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM3_STOP;
    
@@ -99,8 +154,6 @@ while(1)
 			usart_data[20] = speed / 10 % 10 +48;
 			usart_data[21] = speed % 10 +48;
 		
-		
-			
 			usart.Transmit(&usart_data[0], 24);
       speedometer.CalcualteSpeed();
       rpm.CalculateRPM();

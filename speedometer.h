@@ -44,15 +44,15 @@ class Speedometer
     ~Speedometer();
     void CalcualteSpeed();
     void SetUnits(Speedometer::Units a_units);
-    void SetPulsesPerUnit(uint16_t a_pulses_per_unit);
+    void SetPulsesPerUnit(PulsesPerUnit a_pulses_per_unit);
     const uint16_t GetSpeed();
     volatile static inline uint32_t m_speedometer_ticks = 0;
   private:
     const uint32_t m_tim_arr_max;  //IS IT NEEDED?
     const uint32_t m_timer_bus_clock;
-    uint8_t m_sensitivity;
+    uint8_t m_sensitivity_level;
     uint16_t m_speed;
-    uint16_t m_pulses_per_unit;
+    PulsesPerUnit m_pulses_per_unit;
     Units m_units;
     TIM_TypeDef* const mp_timer;
 };

@@ -39,7 +39,7 @@ private:
   uint16_t m_rpm;
   uint16_t m_min_rpm;
   Cylinders m_cylinders_number;
-  uint8_t m_sensitivity;
+  uint8_t m_sensitivity_level;
   TIM_TypeDef* const mp_timer;
 };
 

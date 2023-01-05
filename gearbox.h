@@ -25,14 +25,11 @@ public:
 	void SetTireHeight(uint8_t a_tire_height);
 	void SetTireWidth(uint16_t a_tire_width);
 	void CalculateCircumference();
-	
 	void CalculateGear(uint32_t a_rpm, uint32_t a_speed);
-
 	uint8_t GetActiveGear();
 	
 private:
 	Gear m_active_gear;
-	
 	double m_main_gear_ratio;
 	double m_gears[7];
 //	double m_first_gear_ratio;

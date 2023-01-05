@@ -3,7 +3,7 @@
 Speedometer::Speedometer
   (const PulsesPerUnit a_pulses_per_unit, TIM_TypeDef* const ap_timer, 
    const uint32_t a_timer_bus_clock, const Speedometer::Units a_units)
-  : m_pulses_per_unit{static_cast<uint16_t>(a_pulses_per_unit)}
+  : m_pulses_per_unit{a_pulses_per_unit}
   , mp_timer{ap_timer}
   , m_timer_bus_clock{a_timer_bus_clock}
   , m_units{a_units}
@@ -98,7 +98,7 @@ void Speedometer::SetUnits (Speedometer::Units a_units)
 {
   m_units = a_units;
 }
-void Speedometer::SetPulsesPerUnit(uint16_t a_pulses_per_unit)
+void Speedometer::SetPulsesPerUnit(PulsesPerUnit a_pulses_per_unit)
 {
   m_pulses_per_unit = a_pulses_per_unit;
   

@@ -105,9 +105,10 @@ Color Color::operator--(int)
 }
 
 
-Led::Led():
-color{},
-brightness{0}
+Led::Led()
+	: m_color{}
+	, m_brightness{0}
+	, m_dimmer_brightness{0}
 {
 }
 
@@ -117,9 +118,9 @@ Led::~Led()
 
 void Led::SetColor (Color& a_color)
 {
-  color->SetColorRed(a_color.GetColorRed());
-  color->SetColorGreen(a_color.GetColorGreen());
-  color->SetColorBlue(a_color.GetColorBlue());
+  m_color->SetColorRed(a_color.GetColorRed());
+  m_color->SetColorGreen(a_color.GetColorGreen());
+  m_color->SetColorBlue(a_color.GetColorBlue());
 }
 
 Color Led::GetColor()
@@ -131,17 +132,17 @@ Color Led::GetColor()
 
 void Led::SetBrightness(uint8_t a_brightness)
 {
-  this->brightness = a_brightness;
+  m_brightness = a_brightness;
 }
 
 uint8_t Led::GetBrightness()
 {
-  return this->brightness;
+  return m_brightness;
 }
 
-LedStrip::LedStrip():
-animation{Animation::fromlefttoright},
-isdimmerenabled{false}
+LedStrip::LedStrip()
+	: m_animation{Animation::fromlefttoright}
+	, isdimmerenabled{false}
 {
   //isdimmeractive based on pio
 }
@@ -163,22 +164,22 @@ uint8_t LedStrip::GetNumOfLeds()
 
 void LedStrip::SetAnimation(Animation a_animation)
 {
-  this->animation = a_animation;
+  m_animation = a_animation;
 }
 
 LedStrip::Animation LedStrip::GetAnimation()
 {
-  return this->animation;
+  return m_animation;
 }
 
 void LedStrip::EnableDimmer()
 {
-  this->isdimmerenabled = true;
+  isdimmerenabled = true;
 }
 
 void LedStrip::DisableDimmer()
 {
-  this->isdimmerenabled = false;
+  isdimmerenabled = false;
 }
 
 void LedStrip::Show()
