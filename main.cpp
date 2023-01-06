@@ -15,7 +15,6 @@
 volatile double frequency{400};
 constexpr uint32_t f_cpu = 100'000'000;
 
-
 int main (void)
 {
 	Rcc rcc(Rcc::Pll_clock, 25000);	
@@ -35,17 +34,17 @@ int main (void)
 	uint8_t u8temp[sizeof(double)];	
 	eeprom.Read(0x0005, &u8temp[0],sizeof(double));
 	
-	uint8_t ptr;
-	LedStrip::Animation ptr_animation {LedStrip::Animation::fromlefttoright};
+	uint8_t ptr[9] = {8,5,4,2,4,0,9,2,45};
+	LedStrip::Animation ptr_animation {LedStrip::Animation::onecolortoanother};
 	
-//	eeprom.Write(eeprom_leds_num, &ptr, sizeof (uint8_t));
-//	eeprom.Write(eeprom_brightness, &ptr, sizeof (uint8_t));
-//	eeprom.Write(eeprom_dimmer_brightness, &ptr, sizeof (uint8_t));
-//	
-//	eeprom.Write(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
-//	
-//	eeprom.Write(eeprom_segments_number, &ptr, sizeof (uint8_t));
-	Color ptr_color;
+	eeprom.Write(eeprom_leds_num, &ptr[0], sizeof (uint8_t));
+	eeprom.Write(eeprom_brightness, &ptr[1], sizeof (uint8_t));
+	eeprom.Write(eeprom_dimmer_brightness, &ptr[2], sizeof (uint8_t));
+	
+	eeprom.Write(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
+	
+	eeprom.Write(eeprom_segments_number, &ptr[3], sizeof (uint8_t));
+	Color ptr_color[6];
 //	eeprom.Write(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	eeprom.Write(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	eeprom.Write(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
@@ -53,10 +52,10 @@ int main (void)
 //	eeprom.Write(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	eeprom.Write(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	
-//	eeprom.Write(eeprom_seg_1_led_number, &ptr, sizeof (uint8_t));
-//	eeprom.Write(eeprom_seg_2_led_number, &ptr, sizeof (uint8_t));
-//	eeprom.Write(eeprom_seg_3_led_number, &ptr, sizeof (uint8_t));
-//	eeprom.Write(eeprom_seg_4_led_number, &ptr, sizeof (uint8_t));
+	eeprom.Write(eeprom_seg_1_led_number, &ptr[4], sizeof (uint8_t));
+	eeprom.Write(eeprom_seg_2_led_number, &ptr[5], sizeof (uint8_t));
+	eeprom.Write(eeprom_seg_3_led_number, &ptr[6], sizeof (uint8_t));
+	eeprom.Write(eeprom_seg_4_led_number, &ptr[7], sizeof (uint8_t));
 //	
 	auto cylinders_number = RPM::Cylinders_4;
 //	eeprom.Write(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
@@ -64,33 +63,32 @@ int main (void)
 //	
 	
 	////////////////
-	eeprom.Read(eeprom_leds_num, &ptr, sizeof (uint8_t));
-	eeprom.Read(eeprom_brightness, &ptr, sizeof (uint8_t));
-	eeprom.Read(eeprom_dimmer_brightness, &ptr, sizeof (uint8_t));
+	for (int i=0; i< (sizeof(ptr)/sizeof(ptr[0])); i++)
+		ptr[i] = 0;
+	
+	eeprom.Read(eeprom_leds_num, &ptr[0], sizeof (uint8_t));
+	eeprom.Read(eeprom_brightness, &ptr[1], sizeof (uint8_t));
+	eeprom.Read(eeprom_dimmer_brightness, &ptr[2], sizeof (uint8_t));
 	
 	eeprom.Read(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
 	
-	eeprom.Read(eeprom_segments_number, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_segments_number, &ptr[3], sizeof (uint8_t));
 
-	eeprom.Read(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
-	eeprom.Read(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
-	eeprom.Read(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
-	eeprom.Read(eeprom_seg_2_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
-	eeprom.Read(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
-	eeprom.Read(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
+	eeprom.Read(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color[0]), sizeof(ptr_color[0]));
+	eeprom.Read(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color[1]), sizeof(ptr_color[1]));
+	eeprom.Read(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color[2]), sizeof(ptr_color[2]));
+	eeprom.Read(eeprom_seg_2_color, reinterpret_cast<uint8_t*>(&ptr_color[3]), sizeof(ptr_color[3]));
+	eeprom.Read(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color[4]), sizeof(ptr_color[4]));
+	eeprom.Read(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color[5]), sizeof(ptr_color[5]));
 	
-	eeprom.Read(eeprom_seg_1_led_number, &ptr, sizeof (uint8_t));
-	eeprom.Read(eeprom_seg_2_led_number, &ptr, sizeof (uint8_t));
-	eeprom.Read(eeprom_seg_3_led_number, &ptr, sizeof (uint8_t));
-	eeprom.Read(eeprom_seg_4_led_number, &ptr, sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_1_led_number, &ptr[4], sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_2_led_number, &ptr[5], sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_3_led_number, &ptr[6], sizeof (uint8_t));
+	eeprom.Read(eeprom_seg_4_led_number, &ptr[7], sizeof (uint8_t));
 	
 
 	eeprom.Read(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
-	eeprom.Read(eeprom_tachometer_sensitivity_level, &ptr, sizeof (uint8_t));
-	
-	
-	
-
+	eeprom.Read(eeprom_tachometer_sensitivity_level, &ptr[8], sizeof (uint8_t));
 	
 	__ASM("nop");
 	 

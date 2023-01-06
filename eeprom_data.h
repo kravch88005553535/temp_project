@@ -11,7 +11,7 @@ enum Eeprom_offsets
 	eeprom_brightness = eeprom_leds_num + sizeof(uint8_t), //LedStrip::m_leds_num
 	eeprom_dimmer_brightness = eeprom_brightness + sizeof(uint8_t), //Led::m_brightness
 	eeprom_animation	= eeprom_dimmer_brightness + sizeof(uint8_t), //Led::m_dimmer_brightness
-	eeprom_segments_number = eeprom_animation + sizeof (LedStrip::Animation), //LedStrip::m_animation 
+	eeprom_segments_number = eeprom_animation + sizeof (LedStrip::Animation), //LedStrip::m_animation
 	eeprom_shift_color_1	= eeprom_segments_number + sizeof (uint8_t), //LedStrip::m_segments_num
 	eeprom_shift_color_2 = eeprom_shift_color_1 + sizeof (Color),
 	eeprom_seg_1_color	= eeprom_shift_color_2 + sizeof (Color),
@@ -30,7 +30,7 @@ enum Eeprom_offsets
 	///////////////// SPEEDOMETER
 	eeprom_speedometer_sensitivity_level = eeprom_tachometer_sensitivity_level + sizeof(uint8_t), //RPM::m_sensitivity_level
 	eeprom_pulses_per_unit	= eeprom_speedometer_sensitivity_level + sizeof(uint8_t), //Speedometer::m_sensitivity_level
-	eeprom_speedometer_units	= eeprom_pulses_per_unit + sizeof(Speedometer::PulsesPerUnit), 
+	eeprom_speedometer_units	= eeprom_pulses_per_unit + sizeof(Speedometer::PulsesPerUnit),
 
 	///////////////// GEARBOX
 	eeprom_main_gear_ratio = eeprom_speedometer_units + sizeof (Speedometer::Units),
