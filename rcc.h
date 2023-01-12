@@ -4,12 +4,6 @@
 class Rcc
 {
 public:
-  enum Pll_clock_source
-  {
-    Pll_clock_source_hsi_oscillator = 0,
-    Pll_clock_source_hse_oscillator = 1
-  };
-	
 	enum Hse_frequency
 	{
 		Hse_frequency_none = 0,
@@ -39,18 +33,14 @@ public:
   Rcc(System_clock_source a_clock_source, Hse_frequency a_hse_frequency = Hse_frequency_none);
   ~Rcc();
 
-  void SetAHBClock();
-	uint32_t GetSystemClock();
   uint32_t GetAhbClock();
   uint32_t GetApb1Clock();  
   uint32_t GetApb2Clock();
-	uint32_t GetPeripheralClock(void* a_peripheral);
-	System_clock_source GetSystemClockSource();
-  uint32_t GetTimerClock(TIM_TypeDef* ap_timer);
+	uint32_t GetPeripheralClock(void* ap_peripheral);
+  
   void SetMcuToLowPowerMode();
   void SetMcuToRunMode();
-	Pll_clock_source GetPllSource();
-	
+
 private:
 	enum Pll_p
 	{
@@ -59,6 +49,13 @@ private:
 		Pll_p_6 = 2,
 		Pll_p_8 = 3
 	};
+	
+	enum Pll_clock_source
+  {
+    Pll_clock_source_hsi_oscillator = 0,
+    Pll_clock_source_hse_oscillator = 1
+  };
+	
 	enum Ahb_prescaler
 	{
 		Ahb_prescaler_not_divided = 0,
@@ -90,41 +87,45 @@ private:
 		Apb2_prescaler_16 = 7
 	};
 	
+	////// HSE
 	bool IsHseReady();
-	bool IsPllReady();
-	
 	void EnableHse();
 	void DisableHse();
+	
+	////// PLL
+	bool IsPllReady();
 	void EnablePll();
 	void DisablePll();
 	void SetPllSource(Pll_clock_source a_pll_clock_soiurce);
- 
-	void SetSystemClockSource(System_clock_source a_system_clock_source);
-	void SetSysClockToMax();
-	
-	void SetAhbPrescaler(Ahb_prescaler a_ahb_prescaler);
-	void SetApb1Prescaler(Apb1_prescaler a_apb1_prescaler);
-	void SetApb2Prescaler(Apb2_prescaler a_apb2_prescaler);
-	
-	uint32_t GetAhbPrescaler();
-	uint32_t GetApb1Prescaler();
-	uint32_t GetApb2Prescaler();
-
+	Pll_clock_source GetPllSource();
 	void SetPllM(uint32_t a_pll_m);
 	void SetPllN(uint32_t a_pll_n);
 	void SetPllP(Pll_p a_pll_p);
 	void SetPllQ(uint32_t a_pll_q);
-	
 	uint32_t GetPllM();
 	uint32_t GetPllN();
 	uint32_t GetPllP();
 	uint32_t GetPllQ();
+
+	////// SYSTEM CLOCKS
+	void SetSystemClockSource(System_clock_source a_system_clock_source);
+	System_clock_source GetSystemClockSource();
+	uint32_t GetSystemClock();
+	void SetSysClockToMax();
+	void SetAhbPrescaler(Ahb_prescaler a_ahb_prescaler);
+	void SetApb1Prescaler(Apb1_prescaler a_apb1_prescaler);
+	void SetApb2Prescaler(Apb2_prescaler a_apb2_prescaler);
+	uint32_t GetAhbPrescaler();
+	uint32_t GetApb1Prescaler();
+	uint32_t GetApb2Prescaler();
 	
 	void SetTimersPrescaler(bool a_prescaler);
 	bool GetTimersPrescaler();
-	
-//	void EnableClockSecuritySystem();
-//	void DisableClockSecuritySystem();
+	uint32_t GetTimerClock (void* ap_timer_ptr);
+	////// CLOCK SECURITY SYSTEM
+	//	void EnableClockSecuritySystem();
+	//	void DisableClockSecuritySystem();
+
   Hse_frequency m_hse_frequency;
 };
 

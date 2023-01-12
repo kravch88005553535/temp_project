@@ -27,9 +27,12 @@ int main (void)
 	Pin c13(GPIOC, 13, Pin::mode_out_pulldown);
 
 	Rcc::System_clock_source sysclksource{Rcc::System_clock_source_hsi_clock};
-	uint32_t ahbclk = rcc.GetSystemClock(); 
+	uint32_t ahbclk = rcc.GetAhbClock(); 
 	uint32_t apb1clk = rcc.GetApb1Clock();
 	uint32_t apb2clk = rcc.GetApb2Clock();
+	
+	uint32_t tim1_clk = rcc.GetPeripheralClock(TIM1);
+	uint32_t tim2_clk = rcc.GetPeripheralClock(TIM2);
 	
 	Pin B8(GPIOB, 8, Pin::mode_alternate_function_open_drain); //I2C B8 clock
 	Pin B9(GPIOB, 9, Pin::mode_alternate_function_open_drain); //I2C B9 data
@@ -145,8 +148,8 @@ int main (void)
   TIM1->CR1 |= TIM_CR1_CEN;
   NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 
-  RPM rpm (TIM3, rcc.GetTimerClock(TIM3),RPM::Cylinders_4);
-  Speedometer speedometer (Speedometer::Pulses_6K, TIM4, rcc.GetTimerClock(TIM4), Speedometer::Kilometers);
+  RPM rpm (TIM3, rcc.GetPeripheralClock(TIM3),RPM::Cylinders_4);
+  Speedometer speedometer(Speedometer::Pulses_6K, TIM4, rcc.GetPeripheralClock(TIM4), Speedometer::Kilometers);
 	
 	uint8_t segments[] {0xFF, 0xFF, 0xFF, 0xFF};
 	

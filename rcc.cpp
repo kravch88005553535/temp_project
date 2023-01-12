@@ -36,30 +36,54 @@ uint32_t Rcc::GetApb2Clock()
 	return GetAhbClock()/GetApb2Prescaler();
 }
 
-uint32_t Rcc::GetPeripheralClock(void* a_peripheral)
+uint32_t Rcc::GetPeripheralClock(void* ap_peripheral)
 {
-	uint32_t clock{0};
-	switch(reinterpret_cast<uint32_t>(a_peripheral))
+	switch(reinterpret_cast<uint32_t>(ap_peripheral))
 	{
 		case USART1_BASE:
-			clock = this->GetApb2Clock();
-		break;
+		case USART6_BASE:
+		case ADC1_BASE:
+		case SDIO_BASE:
+		case SPI1_BASE:
+		case SPI4_BASE:
+		case SYSCFG_BASE:
+		return GetApb2Clock();
 			
 		case USART2_BASE:
-			clock = this->GetApb1Clock();
-		break;
-		
-		case USART6_BASE:
-			clock = this->GetApb2Clock();
-		break;
-	}
-	return clock;
-}
+		case I2C1_BASE:
+		case I2C2_BASE:
+		case I2C3_BASE:
+		case SPI2_BASE:
+		case SPI3_BASE:
+		case WWDG_BASE:
+		return GetApb1Clock();
 
-uint32_t Rcc::GetTimerClock(TIM_TypeDef* ap_timer)
-{
-  return 100'000'000;
-  //here implementation
+		case DMA1_BASE:
+		case DMA2_BASE:
+		case CRC_BASE:
+		case GPIOA_BASE:
+		case GPIOB_BASE:
+		case GPIOC_BASE:
+		case GPIOD_BASE:
+		case GPIOE_BASE:
+		case GPIOH_BASE:
+		case USB_OTG_FS_PERIPH_BASE:
+		return GetAhbClock();
+
+		case TIM1_BASE:
+		case TIM2_BASE:
+		case TIM3_BASE:
+		case TIM4_BASE:
+		case TIM5_BASE:
+		case TIM9_BASE:
+		case TIM10_BASE:
+		case TIM11_BASE:
+		return GetTimerClock(reinterpret_cast<TIM_TypeDef*>(ap_peripheral));
+	}
+	
+	while(1){}
+	return 666;
+	//uint32_t GetTimerClock(TIM_TypeDef* ap_timer);
 }
 
 void Rcc::SetSysClockToMax()
@@ -350,3 +374,48 @@ bool Rcc::GetTimersPrescaler()
 {
 	return RCC->DCKCFGR & RCC_DCKCFGR_TIMPRE;
 }
+
+uint32_t Rcc::GetTimerClock (void* ap_timer_ptr)
+{
+	switch (reinterpret_cast<uint32_t>(ap_timer_ptr))
+	{
+		case TIM2_BASE:
+		case TIM3_BASE:
+		case TIM4_BASE:
+		case TIM5_BASE:
+			if (RCC->DCKCFGR & RCC_DCKCFGR_TIMPRE)
+				return (GetApb1Prescaler() == 1 || GetApb1Prescaler() == 2) ?  GetAhbClock() : 4 * GetApb1Clock();
+			else
+				return GetApb1Prescaler() == 1 ? GetAhbClock() : 2 * GetApb1Clock();
+			
+		case TIM1_BASE:
+		case TIM9_BASE:
+		case TIM10_BASE:
+		case TIM11_BASE:
+			if (RCC->DCKCFGR & RCC_DCKCFGR_TIMPRE)
+				return (GetApb1Prescaler() == 1 || GetApb1Prescaler() == 2) ?  GetAhbClock() : 4 * GetApb2Clock();
+			else
+				return GetApb1Prescaler() == 1 ? GetAhbClock() : 2 * GetApb2Clock();
+	}
+	while(1){}
+	return 666;
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
