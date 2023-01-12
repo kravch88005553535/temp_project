@@ -401,21 +401,3 @@ uint32_t Rcc::GetTimerClock (void* ap_timer_ptr)
 	return 666;
 }
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	

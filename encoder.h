@@ -6,6 +6,13 @@
 class Rotary_encoder
 {
 	public:
+
+	Rotary_encoder(TIM_TypeDef* ap_timer);
+	
+	Rotary_encoder() = delete;
+	~Rotary_encoder();
+	
+	void Check();
 	private:
 	TIM_TypeDef* mp_timer;
 };

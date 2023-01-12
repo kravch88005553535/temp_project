@@ -37,7 +37,4 @@ private:
 ////  *const /*pointer of spi interface*/ 
 //};
 
-
-
-
 #endif //__EEPROM_H__

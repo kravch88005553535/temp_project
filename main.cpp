@@ -1,6 +1,5 @@
 #include <stm32f411xe.h>
 
-//#include "clocks.h"
 #include "gpio.h"
 #include "rpm.h"
 #include "speedometer.h"
@@ -11,6 +10,8 @@
 #include "usart.h"
 #include "gearbox.h"
 #include "tm1637.h"
+#include "encoder.h"
+#include "menu.h"
 
 //#include "i2c.h"
 
@@ -18,11 +19,11 @@ volatile double frequency{400};
 constexpr uint32_t f_cpu = 100'000'000;
 uint32_t revpermin = 0;
 uint32_t speed = 0; 
-uint8_t usart_data[] = {'R', 'P', 'M', ' ', '=', ' ', 't', 'e', 's', 't',
-	' ','s','p','e','e','d',' ','=',' ','s', 'p', 'd','\n', '\r'};
+uint8_t usart_data[] = {"rpm = 6666 speed = 666\n\r"};
 
 int main (void)
 {
+	//connect DMA to USART
 	Rcc rcc(Rcc::System_clock_source_pll_clock, Rcc::Hse_frequency_25Mhz);	
 	Pin c13(GPIOC, 13, Pin::mode_out_pulldown);
 
@@ -156,7 +157,14 @@ int main (void)
 //	TM_1637 display(&i2c);
 //	display.SetSegments(&segments[0],4,2);
 	
-while(1)
+	Menuitem logo;
+	Menuitem program;
+	Menuitem main_menu;
+	logo.AddNextItem(&program);
+	program.AddNextItem(&main_menu);
+	Menu menu(&logo);
+	
+	while(1)
   {
 		usart_data[6] = revpermin /1000 +48;
 		usart_data[7] = revpermin / 100 % 10 +48;
