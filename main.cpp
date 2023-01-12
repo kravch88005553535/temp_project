@@ -10,16 +10,27 @@
 #include "led_strip.h"
 #include "usart.h"
 #include "gearbox.h"
+#include "tm1637.h"
+
 //#include "i2c.h"
 
 volatile double frequency{400};
 constexpr uint32_t f_cpu = 100'000'000;
+uint32_t revpermin = 0;
+uint32_t speed = 0; 
+uint8_t usart_data[] = {'R', 'P', 'M', ' ', '=', ' ', 't', 'e', 's', 't',
+	' ','s','p','e','e','d',' ','=',' ','s', 'p', 'd','\n', '\r'};
 
 int main (void)
 {
-	Rcc rcc(Rcc::Pll_clock, 25000);	
+	Rcc rcc(Rcc::System_clock_source_pll_clock, Rcc::Hse_frequency_25Mhz);	
 	Pin c13(GPIOC, 13, Pin::mode_out_pulldown);
 
+	Rcc::System_clock_source sysclksource{Rcc::System_clock_source_hsi_clock};
+	uint32_t ahbclk = rcc.GetSystemClock(); 
+	uint32_t apb1clk = rcc.GetApb1Clock();
+	uint32_t apb2clk = rcc.GetApb2Clock();
+	
 	Pin B8(GPIOB, 8, Pin::mode_alternate_function_open_drain); //I2C B8 clock
 	Pin B9(GPIOB, 9, Pin::mode_alternate_function_open_drain); //I2C B9 data
 	B8.SetAlternateFunctionNumber(Pin::AlternateFunction_4);
@@ -30,20 +41,20 @@ int main (void)
 	double tr_data{998.1675};
 //	eeprom.Write(0x0005,reinterpret_cast<uint8_t*>(&tr_data),sizeof(double));
 	double r_data{55.1};
-	eeprom.Read(0x0005, reinterpret_cast<uint8_t*>(&r_data),sizeof(double));
+//	eeprom.Read(0x0005, reinterpret_cast<uint8_t*>(&r_data),sizeof(double));
 	uint8_t u8temp[sizeof(double)];	
-	eeprom.Read(0x0005, &u8temp[0],sizeof(double));
+//	eeprom.Read(0x0005, &u8temp[0],sizeof(double));
 	
 	uint8_t ptr[9] = {8,5,4,2,4,0,9,2,45};
 	LedStrip::Animation ptr_animation {LedStrip::Animation::onecolortoanother};
 	
-	eeprom.Write(eeprom_leds_num, &ptr[0], sizeof (uint8_t));
-	eeprom.Write(eeprom_brightness, &ptr[1], sizeof (uint8_t));
-	eeprom.Write(eeprom_dimmer_brightness, &ptr[2], sizeof (uint8_t));
-	
-	eeprom.Write(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
-	
-	eeprom.Write(eeprom_segments_number, &ptr[3], sizeof (uint8_t));
+//	eeprom.Write(eeprom_leds_num, &ptr[0], sizeof (uint8_t));
+//	eeprom.Write(eeprom_brightness, &ptr[1], sizeof (uint8_t));
+//	eeprom.Write(eeprom_dimmer_brightness, &ptr[2], sizeof (uint8_t));
+//	
+//	eeprom.Write(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
+//	
+//	eeprom.Write(eeprom_segments_number, &ptr[3], sizeof (uint8_t));
 	Color ptr_color[6];
 //	eeprom.Write(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	eeprom.Write(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
@@ -52,10 +63,10 @@ int main (void)
 //	eeprom.Write(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	eeprom.Write(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color), sizeof(ptr_color));
 //	
-	eeprom.Write(eeprom_seg_1_led_number, &ptr[4], sizeof (uint8_t));
-	eeprom.Write(eeprom_seg_2_led_number, &ptr[5], sizeof (uint8_t));
-	eeprom.Write(eeprom_seg_3_led_number, &ptr[6], sizeof (uint8_t));
-	eeprom.Write(eeprom_seg_4_led_number, &ptr[7], sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_1_led_number, &ptr[4], sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_2_led_number, &ptr[5], sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_3_led_number, &ptr[6], sizeof (uint8_t));
+//	eeprom.Write(eeprom_seg_4_led_number, &ptr[7], sizeof (uint8_t));
 //	
 	auto cylinders_number = RPM::Cylinders_4;
 //	eeprom.Write(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
@@ -66,29 +77,29 @@ int main (void)
 	for (int i=0; i< (sizeof(ptr)/sizeof(ptr[0])); i++)
 		ptr[i] = 0;
 	
-	eeprom.Read(eeprom_leds_num, &ptr[0], sizeof (uint8_t));
-	eeprom.Read(eeprom_brightness, &ptr[1], sizeof (uint8_t));
-	eeprom.Read(eeprom_dimmer_brightness, &ptr[2], sizeof (uint8_t));
-	
-	eeprom.Read(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
-	
-	eeprom.Read(eeprom_segments_number, &ptr[3], sizeof (uint8_t));
+//	eeprom.Read(eeprom_leds_num, &ptr[0], sizeof (uint8_t));
+//	eeprom.Read(eeprom_brightness, &ptr[1], sizeof (uint8_t));
+//	eeprom.Read(eeprom_dimmer_brightness, &ptr[2], sizeof (uint8_t));
+//	
+//	eeprom.Read(eeprom_animation, reinterpret_cast<uint8_t*>(&ptr_animation), sizeof (ptr_animation));
+//	
+//	eeprom.Read(eeprom_segments_number, &ptr[3], sizeof (uint8_t));
 
-	eeprom.Read(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color[0]), sizeof(ptr_color[0]));
-	eeprom.Read(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color[1]), sizeof(ptr_color[1]));
-	eeprom.Read(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color[2]), sizeof(ptr_color[2]));
-	eeprom.Read(eeprom_seg_2_color, reinterpret_cast<uint8_t*>(&ptr_color[3]), sizeof(ptr_color[3]));
-	eeprom.Read(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color[4]), sizeof(ptr_color[4]));
-	eeprom.Read(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color[5]), sizeof(ptr_color[5]));
-	
-	eeprom.Read(eeprom_seg_1_led_number, &ptr[4], sizeof (uint8_t));
-	eeprom.Read(eeprom_seg_2_led_number, &ptr[5], sizeof (uint8_t));
-	eeprom.Read(eeprom_seg_3_led_number, &ptr[6], sizeof (uint8_t));
-	eeprom.Read(eeprom_seg_4_led_number, &ptr[7], sizeof (uint8_t));
-	
+//	eeprom.Read(eeprom_shift_color_1, reinterpret_cast<uint8_t*>(&ptr_color[0]), sizeof(ptr_color[0]));
+//	eeprom.Read(eeprom_shift_color_2, reinterpret_cast<uint8_t*>(&ptr_color[1]), sizeof(ptr_color[1]));
+//	eeprom.Read(eeprom_seg_1_color, reinterpret_cast<uint8_t*>(&ptr_color[2]), sizeof(ptr_color[2]));
+//	eeprom.Read(eeprom_seg_2_color, reinterpret_cast<uint8_t*>(&ptr_color[3]), sizeof(ptr_color[3]));
+//	eeprom.Read(eeprom_seg_3_color, reinterpret_cast<uint8_t*>(&ptr_color[4]), sizeof(ptr_color[4]));
+//	eeprom.Read(eeprom_seg_4_color, reinterpret_cast<uint8_t*>(&ptr_color[5]), sizeof(ptr_color[5]));
+//	
+//	eeprom.Read(eeprom_seg_1_led_number, &ptr[4], sizeof (uint8_t));
+//	eeprom.Read(eeprom_seg_2_led_number, &ptr[5], sizeof (uint8_t));
+//	eeprom.Read(eeprom_seg_3_led_number, &ptr[6], sizeof (uint8_t));
+//	eeprom.Read(eeprom_seg_4_led_number, &ptr[7], sizeof (uint8_t));
+//	
 
-	eeprom.Read(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
-	eeprom.Read(eeprom_tachometer_sensitivity_level, &ptr[8], sizeof (uint8_t));
+//	eeprom.Read(eeprom_cylinders_number, reinterpret_cast<uint8_t*>(&cylinders_number), sizeof (cylinders_number));
+//	eeprom.Read(eeprom_tachometer_sensitivity_level, &ptr[8], sizeof (uint8_t));
 	
 	__ASM("nop");
 	 
@@ -136,31 +147,32 @@ int main (void)
 
   RPM rpm (TIM3, rcc.GetTimerClock(TIM3),RPM::Cylinders_4);
   Speedometer speedometer (Speedometer::Pulses_6K, TIM4, rcc.GetTimerClock(TIM4), Speedometer::Kilometers);
-
-  uint32_t revpermin = 0;
-  uint32_t speed = 0; 
-  uint8_t usart_data[] = {'R', 'P', 'M', ' ', '=', ' ', 't', 'e', 's', 't',
-		' ','s','p','e','e','d',' ','=',' ','s', 'p', 'd','\n', '\r'};
+	
+	uint8_t segments[] {0xFF, 0xFF, 0xFF, 0xFF};
+	
+//	TM_1637 display(&i2c);
+//	display.SetSegments(&segments[0],4,2);
+	
 while(1)
   {
-			usart_data[6] = revpermin /1000 +48;
-			usart_data[7] = revpermin / 100 % 10 +48;
-			usart_data[8] = revpermin % 100 / 10 +48;
-			usart_data[9] = revpermin %10 +48;
+		usart_data[6] = revpermin /1000 +48;
+		usart_data[7] = revpermin / 100 % 10 +48;
+		usart_data[8] = revpermin % 100 / 10 +48;
+		usart_data[9] = revpermin %10 +48;
 
-			usart_data[19] =  speed / 100 +48;
-			usart_data[20] = speed / 10 % 10 +48;
-			usart_data[21] = speed % 10 +48;
+		usart_data[19] =  speed / 100 +48;
+		usart_data[20] = speed / 10 % 10 +48;
+		usart_data[21] = speed % 10 +48;
+	
+		usart.Transmit(&usart_data[0], 24);
+		speedometer.CalcualteSpeed();
+		rpm.CalculateRPM();
 		
-			usart.Transmit(&usart_data[0], 24);
-      speedometer.CalcualteSpeed();
-      rpm.CalculateRPM();
-      
-      speed = speedometer.GetSpeed();
-      revpermin = rpm.GetRPM();
-		
-			gearbox.CalculateGear(rpm.GetRPM(), speedometer.GetSpeed());
-   
+		speed = speedometer.GetSpeed();
+		revpermin = rpm.GetRPM();
+	
+		gearbox.CalculateGear(rpm.GetRPM(), speedometer.GetSpeed());
+ 
     frequency = static_cast<double>(double(f_cpu) / (TIM1->ARR+1) / (TIM1->PSC+1) /2);
   }  
 }

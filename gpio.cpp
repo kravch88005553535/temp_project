@@ -28,7 +28,7 @@ Pin::Pin(GPIO_TypeDef* ap_port, uint8_t a_pin_number, Mode a_mode)
     break;
   }
 
-  switch(static_cast<int>(a_mode))
+  switch(static_cast<int>(m_mode))
   {
     case mode_in_floating:
       mp_port->MODER &= ~(GPIO_MODER_MODER0_Msk << (a_pin_number*2)); // clear / 00input

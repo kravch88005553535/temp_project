@@ -45,7 +45,7 @@ private:
 class LedStrip : public Led
 {
 public:
-    enum Animation
+  enum Animation
   {
     fromlefttoright,
     fromrighttoleft,
